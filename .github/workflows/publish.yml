@@ -1,14 +1,15 @@
 name: Publish crate
 
 on:
-  push:
-    branches: [master]
   pull_request:
     branches: [master]
     types: [closed]
+  push:
+    branches: [master]
 
 jobs:
   publish:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,25 +23,23 @@ jobs:
       - name: Read crate name/version from Cargo.toml
         id: crate
         run: |
-          python - <<'PY'
+          python - <<'PY' >> "$GITHUB_OUTPUT"
           import tomllib
           from pathlib import Path
           data = tomllib.loads(Path("Cargo.toml").read_text())
           pkg = data["package"]
-          with open(Path.cwd() / "crate_env.txt", "w") as f:
-            f.write(f"CRATE_NAME={pkg['name']}\n")
-            f.write(f"CRATE_VERSION={pkg['version']}\n")
+          print(f"crate_name={pkg['name']}")
+          print(f"crate_version={pkg['version']}")
           PY
-          cat crate_env.txt >> "$GITHUB_ENV"
 
       - name: Check if version already exists on crates.io
         id: exists
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")
+            "https://crates.io/api/v1/crates/${{ steps.crate.outputs.crate_name }}/${{ steps.crate.outputs.crate_version }}")
           if [ "$code" = "200" ]; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "Version ${CRATE_NAME} ${CRATE_VERSION} already exists. Skipping publish."
+            echo "Version ${{ steps.crate.outputs.crate_name }} ${{ steps.crate.outputs.crate_version }} already exists. Skipping publish."
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
