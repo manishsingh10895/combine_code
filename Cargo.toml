@@ -2,6 +2,15 @@
 name = "combine_code"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
+description = "CLI tool to merge source files by extension while respecting .gitignore rules"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/manishsingh10895/combine_code"
+homepage = "https://github.com/manishsingh10895/combine_code"
+documentation = "https://docs.rs/combine_code"
+keywords = ["cli", "merge", "code", "gitignore", "developer-tools"]
+categories = ["command-line-utilities", "filesystem"]
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
@@ -14,4 +23,3 @@ tracing-subscriber = "0.3"
 tempfile = "3.10"      # Creates temporary folders/files for testing
 assert_cmd = "2.0"     # Simplifies testing CLI binaries
 predicates = "3.1"     # Allows for powerful assertions on strings/files
-
